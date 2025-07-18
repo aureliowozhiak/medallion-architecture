@@ -1,0 +1,45 @@
+flowchart TD
+    %% Bronze Layer
+    subgraph Bronze_Layer ["01-bronze-raw"]
+        A1["cep_info.csv"]
+        A2["products.json"]
+        A3["users.csv"]
+    end
+    S3["Amazon S3 Bucket"]
+    S3 -.-> Bronze_Layer
+
+    %% Silver Layer
+    subgraph Silver_Layer ["02-silver-validated"]
+        B1["cep_info.parquet"]
+        B2["products.parquet"]
+        B3["users.parquet"]
+    end
+    GLUE["AWS Glue Data Catalog / S3"]
+    GLUE -.-> Silver_Layer
+
+    %% Gold Layer
+    subgraph Gold_Layer ["03-gold-enriched"]
+        C1["query.sql"]
+    end
+    ATHENA["Amazon Athena"]
+    ATHENA -.-> Gold_Layer
+
+    %% Data Access
+    subgraph Data_Access ["Data Access"]
+        D1["Amazon Redshift"]
+        D2["db.py"]
+        D3["data-view.ipynb"]
+    end
+    QS["Amazon QuickSight / Amazon Redshift"]
+    QS -.-> Data_Access
+
+    %% Data flow
+    A1 --> B1
+    A2 --> B2
+    A3 --> B3
+    B1 --> C1
+    B2 --> C1
+    B3 --> C1
+    C1 --> D1
+    D2 --> D1
+    D3 --> D1 
